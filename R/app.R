@@ -6,7 +6,8 @@ library(shinyBS) #0.61.1
 ui <-dashboardPage(
   dashboardHeader(title = "A protocol for functional diversity analyses",
                   titleWidth = 450),
-  ## Sidebar content
+  
+  # Sidebar content
   dashboardSidebar(
     width = 250,
     sidebarMenu(
@@ -22,7 +23,7 @@ ui <-dashboardPage(
     )
   ),
   
-  ## Body content
+  # Body content
   dashboardBody(
     shinyjs::useShinyjs(),
     tabItems(
@@ -53,16 +54,21 @@ ui <-dashboardPage(
               helpText("Start with the conceptualization of an ecological question 
                   embedded in a theoretical framework with a set of hypotheses and 
                   predictions.", style = "background-color:lightblue; border-radius:5px"),
-      
+              
               radioButtons("step1", "Identify whether your work is open-ended or answers a specific research question",
-                   choices = c("My work focuses on a particular question, e.g. Does seed size diversity decrease at higher latitudes?",
-                               "My work is open-ended, e.g. How do abiotic variables shape leaf morphology?")),     
-                      fluidRow(
-                        column(6, conditionalPanel('input.step1 == ["My work focuses on a particular question, e.g. Does seed size diversity decrease at higher latitudes? or
-                                                   Are spider assemblages functionally richer than others?"]',
-                                                   textInput("hyp", "Hypotheses and predictions", value = "", placeholder = "My ecological question ...")))),
-                      fluidRow(column(6, conditionalPanel('input.step1 == ["My work is open-ended, e.g. How do abiotic variables shape leaf morphology?"]',
-                                                          textInput("nohyp", "Main patterns/variables examined", value = "", placeholder = "Variables under study..."))))
+                           choices = c("My work focuses on a particular question",
+                                       "My work is open-ended")),     
+              fluidRow(
+                column(6, conditionalPanel('input.step1 == ["My work focuses on a particular question"]',
+                                           textInput("hyp", "Hypotheses and predictions", 
+                                                     value = "", placeholder = "My ecological question ...")))),
+              fluidRow(column(6, 
+                              conditionalPanel('input.step1 == ["My work is open-ended"]',
+                                                  textInput("nohyp", "Main patterns/variables examined", 
+                                                            value = "", placeholder = "Variables under study...")))),
+              
+              bsTooltip("Main patterns/variables examined", title = "Does seed size diversity decrease at higher latitudes? or are spider assemblages functionally richer than others?",
+                        placement = "right"),
       ),
              
       tabItem(tabName = "step2",
@@ -123,21 +129,19 @@ ui <-dashboardPage(
                               "taxa \\(\\times\\)", em("p"), "traits.",
                               style = "background-color:lightblue; border-radius:5px"),
                               br(),
-                          textInput("ntraits","Indicate the number of traits"),
-                          selectInput("tdtype", "Indicate the trait data types",
-                                             choices = c("Numerical", "Categorical")),
-              conditionalPanel(
-                condition = "input.tdtype == 'Categorical'",
-                selectInput(
-                  "breaks", "Breaks",
-                  c("Sturges", "Scott", "Freedman-Diaconis", "[Custom]" = "custom")
-                )),
+                          
+              textInput("ntraits","Indicate the number and types of traits"),
+            
+              textInput("cont", "Continuous"),
+              textInput("disc", "Discrete (integer)"),
+              textInput("bin", "Binary"),
+              textInput("fuzzy", "Fuzzy-coded"),
               
-                          textInput("samps", "Report sample sizes per species and trait"),
-                          textInput("mean", "What is the ecological significance or hypothetized function of the selected traits?"),
-                          radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("Yes", "No")),
-                          checkboxGroupInput("dsource","Indicate the data source(s)",
-                                 choices = c("Online database", "Museum/herbarium collection", "Field measurements", "Literature review")),
+             textInput("samps", "Report sample sizes per species and trait"),
+             textInput("mean", "What is the ecological significance or hypothetized function of the selected traits?"),
+             radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("Yes", "No")),
+             checkboxGroupInput("dsource","Indicate the data source(s)",
+                                choices = c("Online database", "Museum/herbarium collection", "Field measurements", "Literature review")),
               ),
              
       tabItem(tabName = "step5",
