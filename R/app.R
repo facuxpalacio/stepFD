@@ -133,13 +133,29 @@ ui <-dashboardPage(
               textInput("ntraits","Indicate the number and types of traits"),
             
               textInput("cont", "Continuous"),
-              textInput("disc", "Discrete (integer)"),
+              bsTooltip("cont", title = "Typically morphological measurements",
+                        placement = "right"),
+              textInput("disc", "Discrete"),
+              bsTooltip("disc", title = "Integers. E.g., offspring number, number of pollinator species",
+                        placement = "right"),
               textInput("bin", "Binary"),
+              bsTooltip("bin", title = "Traits with only two mutually-exclusive categories, e.g., diurnal/nocturnal, migratory/non-migratory, presence/absence of a dietary item. If a trait more than two mutually-exclusive categories, then for analyses purposes, these are usually split into as many traits as categories there are",
+                        placement = "right"),
               textInput("fuzzy", "Fuzzy-coded"),
+              bsTooltip("fuzzy", 
+                        title = "Indicates to which extent a taxon exhibits each trait category. E.g., 0 = taxon has no affinity for a certain trait category, 1 = taxon has low affinity for a certain trait category, 2 = taxon has a high affinity for a certain trait category, but other categories can occur with equal (2) or lower (1) affinity, 3 = taxon has exclusive affinity for a certain trait category",
+                        placement = "right"),
               
              textInput("samps", "Report sample sizes per species and trait"),
-             textInput("mean", "What is the ecological significance or hypothetized function of the selected traits?"),
-             radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("Yes", "No")),
+             bsTooltip("samps", title = "If sample size varies across species and traits, provide the mean",
+                       placement = "right"),
+             
+             textInput("mean", "What is the ecological significance of the selected traits?"),
+             bsTooltip("mean", title = "Hypothetized function of traits. E.g., tree height influences competitive ability, fruit and seed consumption relates to seed dispersal and seedling establishment",
+                       placement = "right"),
+             
+             radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("No", "Yes")),
+             conditionalPanel('input.intra == ["Yes"]', textInput("intrasp_info", "How?")),
              checkboxGroupInput("dsource","Indicate the data source(s)",
                                 choices = c("Online database", "Museum/herbarium collection", "Field measurements", "Literature review")),
               ),
@@ -148,11 +164,21 @@ ui <-dashboardPage(
              helpText("Visually inspect the community and trait matrices to familiarize with your
                       data and deal with any issue therein.", 
                       style = "background-color:lightblue; border-radius:5px"),
-             radioButtons("plot", "Have you plotted your data?", choices=c("Yes", "No")),
+             radioButtons("plot", "Have you plotted your data?", choices=c("No", "Yes")),
+             conditionalPanel('input.plot == ["Yes"]', textInput("plot_info", "Indicate which kind of plots you used")),
              textInput("coll", "Indicate which traits possess collinearity, if any"),
              textInput("trans","Indicate any data transformations performed"),
-             textInput("miss", "Do you have missing data? How did you handle these?"),
-            radioButtons("det", "Did you account for imperfect detection?", choices=c("Yes", "No"))
+             radioButtons("miss", "Do you have missing data?", choices=c("No", "Yes")),
+             conditionalPanel('input.miss == ["Yes"]', 
+                              textInput("miss_info", "How did you handle these?")),
+            
+             radioButtons("det", "Did you account for imperfect detection?", choices=c("No", "Yes")),
+             conditionalPanel('input.det == ["Yes"]', textInput("detection_info", "Which approach did you use to account for imperfect detection?")),
+             selectInput("space", "Which method did you use to build the functional trait space?",
+                         choices=c("Functional dendrogram", "Ordination methods (e.g., PCoA)", "Convex hull", "Probabilistic hypervolume")),
+             conditionalPanel('input.space == ["Functional dendrogram"]', 
+                              textInput("space_info", "Which dissimilarity metric did you use?")),
+             
             ),
       
       tabItem(tabName = "step6",
@@ -160,34 +186,31 @@ ui <-dashboardPage(
                       style = "background-color:lightblue; border-radius:5px"),
                   
                 selectInput("level", "Identify the level of analysis", choices=c('alpha diversity', 'beta diversity', 'gamma diversity')),
-                            textInput('group', "Indicate if any grouping of traits reflecting a similar function wasperformed"),
-                            selectInput("methods", "Select the appropriate method based on the research question", choices=c("Richness", "Regularity", "Divergence", "Similarity", "Rarity/Originality")),
+                            textInput('group', "Indicate if any grouping of traits reflecting a similar function was performed"),
+                            selectInput("methods", "Select the appropriate functional diversity facet based on the research question", 
+                                        choices = c("Richness", "Regularity", "Divergence", "Redundancy", "Originality/rarity")),
             textInput('metric',"Provide more specifics on implementation here (e.g. use of Jaccard dissimilarity metric)")
             ),
-             ### Emma removed these because they seemed redundant?
-                            # selectInput(metric,"Select the appropriate functional diversity metric", choices=c("")),
-                            # selectInput("level", "Identify the level of functional diversity metric measurement", choices=c())),
             
     tabItem(tabName = "step7",
             helpText("Fit, interpret, report and validate your statistical model.",
-                     style = "background-color:lightblue; border-radius:5px"), # Input: Load your community data
+                     style = "background-color:lightblue; border-radius:5px"),
                 textInput("model", "Indicate the statistical model or test chosen that is appropriate to answer your research question"),
-            textInput('effs',   "Report effect sizes, model support and uncertainty"),
-            radioButtons("graph", "Do you require graphical output? If so, save your plots!", choices=c("Yes", "No")),
-            textInput("valid",  "Did you validate your model? If so, how?")
+            textInput('effs', "Report effect sizes, model support and uncertainty"),
+            textInput("valid", "Did you validate your model? If so, how?")
             ),
 
     tabItem(tabName = "step8",
             helpText("Provide enough data and code detail to allow full reproducibility
                 of your results.", style = "background-color:lightblue; border-radius:5px"),
                                    checkboxGroupInput('dms',"Data management and storage",
-                                                      choices = c('I have a Research Data Management Plan', 'My data and code are stored in a location with version control','I have backup copies of my data and code','My data and code are in an organized file system','my raw data is unaltered')),
+                                                      choices = c('I have a Research Data Management Plan', 'My data and code are stored in a location with version control','I have backup copies of my data and code','My data and code are in an organized file system','My raw data is unaltered')),
                                    checkboxGroupInput('ip',"Intellectual property",
                                                       choices = c("My metadata and/or RDMP make it clear whose intellectual property this work represents", 'I have appointed a data steward','My project has a license that describes conditions of reuse')),
                                    checkboxGroupInput('metadata',"Metadata",
                                                       choices = c("I have a README file", 'My README explains how all my files interact','My README contains the title, authors, date and License', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
                                    checkboxGroupInput('code',"Code",
-                                                      choices = c("I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results,figures and tables,', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
+                                                      choices = c("I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results, figures and tables,', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
                                    checkboxGroupInput('host',"Hosting",
                                                       choices = c('My project files can be linked to a DOI (such as Zenodo in combination with GitHub')),
                                    checkboxGroupInput('naming',"Naming",
