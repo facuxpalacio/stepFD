@@ -111,7 +111,7 @@ ui <-dashboardPage(
               
                               textInput("ntax", "Indicate the number of taxa"),
                               textInput("s_units", "Indicate the number of sampling units"),
-                              bsTooltip("s_units", title = "Number of 'independent' samples",
+                              bsTooltip("s_units", title = "Number of 'independent' samples (e.g., if having repeated measures, the number of sampling units is the number of unique sampling sites)",
                               placement = "right"),
               
                               textInput("s_eff", "Report sampling effort"),
@@ -151,7 +151,7 @@ ui <-dashboardPage(
                        placement = "right"),
              
              textInput("mean", "What is the ecological significance of the selected traits?"),
-             bsTooltip("mean", title = "Hypothetized function of traits. E.g., tree height influences competitive ability, fruit and seed consumption relates to seed dispersal and seedling establishment",
+             bsTooltip("mean", title = "Hypothesized function of traits. E.g., tree height influences competitive ability, fruit and seed consumption relates to seed dispersal and seedling establishment",
                        placement = "right"),
              
              radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("No", "Yes")),
