@@ -90,12 +90,15 @@ ui <-dashboardPage(
                   bsTooltip("unit", title = "Ecological entity used as sampling unit, typically species, but it can be any, such as DNA, individuals, genera or communities",
                         placement = "right"),
               
-                  radioButtons("pow1", "Did you perform a power analysis?", choices=c("Yes", "No")),
+                  radioButtons("pow1", "Did you perform a power analysis?", choices=c("Yes", "No")),   bsTooltip("pow1", title = "Power analysis can help understand the effect size required to conclude significance",placement = "right"),
                   textInput("pow2", "Results of power analysis or rationale for lack of need", value = "", 
                             placeholder = "I can detect an effect size of..."),
-                  radioButtons("prer1", "Did you preregister?", choices=c("Yes", "No")),
+                  radioButtons("prer1", "Did you preregister?", choices=c("Yes", "No")),   bsTooltip("prer1", title = "Posting a plan for analysis before performing it, both for transparency and to demonstrate hypotheses were made before the results were known",
+                                                                                                     placement = "right"),
                   textInput("prer2", "Link to preregistration or rationale for lack of need", value = "", 
-                  placeholder = "My preregistration is hosted at osf.io/...")
+                  placeholder = "My preregistration is hosted at osf.io/..."),
+              bsTooltip("prer2", title = "e.g. on OSF, biorXiv or ecoevorXiv",
+                        placement = "right")
       ),
             
       tabItem(tabName = "step3",
@@ -121,7 +124,8 @@ ui <-dashboardPage(
                               selectInput("dtyp","Indicate the occurrence data type", 
                                           choices = c("Presence-absence", "Presence-only", 
                                                       "Occupancy probability", "Abundance", 
-                                                      "Biomass", "Percent cover"))
+                                                      "Biomass", "Percent cover", "Other")),
+              conditionalPanel('input.dtyp == ["Other"]', textInput("dtyp_info", "If other, please specify")),
                           ),
              
       tabItem(tabName = "step4",
@@ -167,7 +171,11 @@ ui <-dashboardPage(
              radioButtons("plot", "Have you plotted your data?", choices=c("No", "Yes")),
              conditionalPanel('input.plot == ["Yes"]', textInput("plot_info", "Indicate which kind of plots you used")),
              textInput("coll", "Indicate which traits possess collinearity, if any"),
+             bsTooltip("coll", title = "A high correlation value between traits",
+                       placement = "right"),
              textInput("trans","Indicate any data transformations performed"),
+             bsTooltip("trans", title = "this may be required to conform to future model assumptions",
+                       placement = "right"),
              radioButtons("miss", "Do you have missing data?", choices=c("No", "Yes")),
              conditionalPanel('input.miss == ["Yes"]', 
                               textInput("miss_info", "How did you handle these?")),
@@ -175,12 +183,12 @@ ui <-dashboardPage(
              radioButtons("det", "Did you account for imperfect detection?", choices=c("No", "Yes")),
              conditionalPanel('input.det == ["Yes"]', textInput("detection_info", "Which approach did you use to account for imperfect detection?")),
              selectInput("space", "Which method did you use to build the functional trait space?",
-                         choices=c("Functional dendrogram", "Ordination methods (e.g., PCoA)", "Convex hull", "Probabilistic hypervolume")),
+                         choices=c("Functional dendrogram", "Ordination methods (e.g., PCoA)", "Convex hull", "Probabilistic hypervolume", "Other")),
              conditionalPanel('input.space == ["Functional dendrogram"]', 
-                              textInput("space_info", "Which dissimilarity metric did you use?")),
-             
-            ),
-      
+                              selectInput("space_info", "Which dissimilarity metric did you use?", choices=c("Bray-Curtis dissimilarity", "Jaccard dissimilarity", "Sørensen dissimilarity", "Other")),
+      conditionalPanel('input.space_info == ["Other"]', 
+                       textInput("space_info_other", "If other, please specify"))
+    )),
       tabItem(tabName = "step6",
              helpText("Now you can compute functional diversity metrics!",
                       style = "background-color:lightblue; border-radius:5px"),
@@ -188,7 +196,8 @@ ui <-dashboardPage(
                 selectInput("level", "Identify the level of analysis", choices=c('alpha diversity', 'beta diversity', 'gamma diversity')),
                             textInput('group', "Indicate if any grouping of traits reflecting a similar function was performed"),
                             selectInput("methods", "Select the appropriate functional diversity facet based on the research question", 
-                                        choices = c("Richness", "Regularity", "Divergence", "Redundancy", "Originality/rarity")),
+                                        choices = c("Richness", "Regularity", "Divergence", "Redundancy", "Originality/rarity", "Other")),
+             conditionalPanel('input.methods == ["Other"]', textInput("methods_info", "If other, please specify")),
             textInput('metric',"Provide more specifics on implementation here (e.g. use of Jaccard dissimilarity metric)")
             ),
             
@@ -198,13 +207,14 @@ ui <-dashboardPage(
                 textInput("model", "Indicate the statistical model or test chosen that is appropriate to answer your research question"),
             textInput('effs', "Report effect sizes, model support and uncertainty"),
             textInput("valid", "Did you validate your model? If so, how?")
-            ),
-
+            ,
+    bsTooltip("valid", title = "Validation involves testing your model against data that were not used to fit it.",
+              placement = "right")),
     tabItem(tabName = "step8",
             helpText("Provide enough data and code detail to allow full reproducibility
                 of your results.", style = "background-color:lightblue; border-radius:5px"),
                                    checkboxGroupInput('dms',"Data management and storage",
-                                                      choices = c('I have a Research Data Management Plan', 'My data and code are stored in a location with version control','I have backup copies of my data and code','My data and code are in an organized file system','My raw data is unaltered')),
+                                                      choices = c('I have a Research Data Management Plan', 'My data and code are stored in a location with version control','I have backup copies of my data and code','My data and code are in an organized file system','My raw data are unaltered')),
                                    checkboxGroupInput('ip',"Intellectual property",
                                                       choices = c("My metadata and/or RDMP make it clear whose intellectual property this work represents", 'I have appointed a data steward','My project has a license that describes conditions of reuse')),
                                    checkboxGroupInput('metadata',"Metadata",
@@ -261,9 +271,9 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
  })
 }
 
-fieldsAll <- c("step1","hyp","nohyp", "scale", "unit","pow1", "pow2", "prer1", "prer2", "foc","reso", "ntax", "s_eff","ntraits","tdtype","samps", "respeff","sofhar","mean","intra","dsource", "plot","coll","trans","miss", "det", "level",'group', "methods", 'metric', "model", "graph", "valid", "dms",'ip','metadata','code','host','naming')
+fieldsAll <- c("step1","hyp","nohyp", "scale", "unit","pow1", "pow2", "prer1", "prer2", "foc","reso", "ntax","s_units","s_eff","dtyp","dtyp_info", "ntraits","cont", "disc", "bin", "fuzzy","samps","mean","intra","intra_info","dsource", "plot","coll","trans","miss", "det", "space", "space_info","space_info_other", "level",'group', "methods","methods_info", 'metric', "model", "effs", "valid", "dms",'ip','metadata','code','host','naming')
 
-fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Sampling effort","Number of traits","ttrait data type","Number of samples", "Response or effect","Soft or hard","Ecological Significance","Intraspecific variation","Data source", "Plots made?","Collinearity","Transformation","Missing data", "Imperfect detection control", "Level of analysis",'Grouping/subsetting', "FD method", 'Method detail', "Model", "Graph needed?", "Validation method", "Data management system",'Intellectual property','Metadata','Code','Hosting','Naming', "Date")
+fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type if applicable", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used","Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Plots made?","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis",'Grouping/subsetting', "FD method", "Other FD method (if applicable)",'Method detail', "Model", "Effect sizes, model support and uncertainty", "Validation method", "Data management system",'Intellectual property','Metadata','Code','Hosting','Naming', "Date")
 responsesDir <- file.path("../output")
 
 humanTime <- function() format(Sys.time(), "%Y%m%d")
