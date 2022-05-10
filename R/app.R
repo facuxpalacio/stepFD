@@ -86,8 +86,8 @@ ui <-dashboardPage(
                   bsTooltip("scale2", title = "E.g., monthly, seasonal, a full year",
                         placement = "right"),
               
-                  textInput("unit","What is your target ecological unit?"),
-                  bsTooltip("unit", title = "Ecological entity used as sampling unit, typically species, but it can be any, such as DNA, individuals, genera or communities",
+                  textInput("unit1","What is your target ecological unit?"),
+                  bsTooltip("unit1", title = "Ecological entity used as sampling unit, typically species, but it can be any, such as DNA, individuals, genera or communities",
                         placement = "right"),
               
                   radioButtons("pow1", "Did you perform a power analysis?", choices=c("Yes", "No")),   bsTooltip("pow1", title = "Power analysis can help understand the effect size required to conclude significance",placement = "right"),
@@ -113,8 +113,13 @@ ui <-dashboardPage(
                               placement = "right"),
               
                               textInput("ntax", "Indicate the number of taxa"),
+                              
+                              textInput("unit2", "Indicate the sampling unit"),
+                              bsTooltip("unit2", title = "Ecological unit that describes a single community and represents one row in the community matrix (e.g., city, field, quadrat, transect, lake)",
+                              placement = "right"),
+                              
                               textInput("s_units", "Indicate the number of sampling units"),
-                              bsTooltip("s_units", title = "Number of 'independent' samples (e.g., if having repeated measures, the number of sampling units is the number of unique sampling sites)",
+                              bsTooltip("s_units", title = "Number of independent samples (e.g., if having repeated measures, the number of sampling units is the number of unique sampling sites)",
                               placement = "right"),
               
                               textInput("s_eff", "Report sampling effort"),
@@ -134,18 +139,18 @@ ui <-dashboardPage(
                               style = "background-color:lightblue; border-radius:5px"),
                               br(),
                           
-              textInput("ntraits","Indicate the number and types of traits"),
+              textInput("ntraits","Indicate the number of traits"),
             
-              textInput("cont", "Continuous"),
+              textInput("cont", "Number of continuous traits"),
               bsTooltip("cont", title = "Typically morphological measurements",
                         placement = "right"),
-              textInput("disc", "Discrete"),
+              textInput("disc", "Number of discrete traits"),
               bsTooltip("disc", title = "Integers. E.g., offspring number, number of pollinator species",
                         placement = "right"),
-              textInput("bin", "Binary"),
-              bsTooltip("bin", title = "Traits with only two mutually-exclusive categories, e.g., diurnal/nocturnal, migratory/non-migratory, presence/absence of a dietary item. If a trait more than two mutually-exclusive categories, then for analyses purposes, these are usually split into as many traits as categories there are",
+              textInput("bin", "Number of binary traits"),
+              bsTooltip("bin", title = "Traits with only two mutually-exclusive categories, e.g., diurnal/nocturnal, migratory/non-migratory, presence/absence of a dietary item. If a trait has more than two mutually-exclusive categories, then for analysis purposes, these are usually split into as many traits as categories there are",
                         placement = "right"),
-              textInput("fuzzy", "Fuzzy-coded"),
+              textInput("fuzzy", "Number of fuzzy-coded traits"),
               bsTooltip("fuzzy", 
                         title = "Indicates to which extent a taxon exhibits each trait category. E.g., 0 = taxon has no affinity for a certain trait category, 1 = taxon has low affinity for a certain trait category, 2 = taxon has a high affinity for a certain trait category, but other categories can occur with equal (2) or lower (1) affinity, 3 = taxon has exclusive affinity for a certain trait category",
                         placement = "right"),
@@ -161,7 +166,7 @@ ui <-dashboardPage(
              radioButtons("intra",  "Did you account for intraspecific trait variation?", choices=c("No", "Yes")),
              conditionalPanel('input.intra == ["Yes"]', textInput("intrasp_info", "How?")),
              checkboxGroupInput("dsource","Indicate the data source(s)",
-                                choices = c("Online database", "Museum/herbarium collection", "Field measurements", "Literature review")),
+                                choices = c("Online database", "Museum/herbarium collection", "Own's field measurements", "Literature review")),
               ),
              
       tabItem(tabName = "step5",
@@ -171,10 +176,10 @@ ui <-dashboardPage(
              radioButtons("plot", "Have you plotted your data?", choices=c("No", "Yes")),
              conditionalPanel('input.plot == ["Yes"]', textInput("plot_info", "Indicate which kind of plots you used")),
              textInput("coll", "Indicate which traits possess collinearity, if any"),
-             bsTooltip("coll", title = "A high correlation value between traits",
+             bsTooltip("coll", title = "Collinearity: high correlation (>|0.7|) between traits",
                        placement = "right"),
              textInput("trans","Indicate any data transformations performed"),
-             bsTooltip("trans", title = "this may be required to conform to future model assumptions",
+             bsTooltip("trans", title = "This may be required to conform to future model assumptions",
                        placement = "right"),
              radioButtons("miss", "Do you have missing data?", choices=c("No", "Yes")),
              conditionalPanel('input.miss == ["Yes"]', 
@@ -193,23 +198,34 @@ ui <-dashboardPage(
              helpText("Now you can compute functional diversity metrics!",
                       style = "background-color:lightblue; border-radius:5px"),
                   
-                selectInput("level", "Identify the level of analysis", choices=c('alpha diversity', 'beta diversity', 'gamma diversity')),
-                            textInput('group', "Indicate if any grouping of traits reflecting a similar function was performed"),
+                selectInput("level", "Identify the level of analysis", choices=c("Alpha diversity", "Beta diversity", "Gamma diversity")),
+                            textInput("group", "Indicate if any grouping of traits reflecting a similar function was performed"),
                             selectInput("methods", "Select the appropriate functional diversity facet based on the research question", 
-                                        choices = c("Richness", "Regularity", "Divergence", "Redundancy", "Originality/rarity", "Other")),
+                                        choices = c("Richness", "Regularity", "Divergence", "Redundancy", "Composition", "Originality/rarity", "Other")),
              conditionalPanel('input.methods == ["Other"]', textInput("methods_info", "If other, please specify")),
-            textInput('metric',"Provide more specifics on implementation here (e.g. use of Jaccard dissimilarity metric)")
+            textInput("metric","Provide more specifics on implementation here (e.g. use of Jaccard dissimilarity metric)")
             ),
             
     tabItem(tabName = "step7",
             helpText("Fit, interpret, report and validate your statistical model.",
                      style = "background-color:lightblue; border-radius:5px"),
                 textInput("model", "Indicate the statistical model or test chosen that is appropriate to answer your research question"),
-            textInput('effs', "Report effect sizes, model support and uncertainty"),
-            textInput("valid", "Did you validate your model? If so, how?")
-            ,
-    bsTooltip("valid", title = "Validation involves testing your model against data that were not used to fit it.",
-              placement = "right")),
+            
+            textInput("effs", "Report (standardized) effect sizes"),
+            bsTooltip("effs", title = "Useful for interpreting the results and for future meta-analyses",
+                      placement = "right"),
+            
+            textInput("supp", "Report model support"),
+            bsTooltip("supp", title = "Information criteria (e.g., AIC, BIC), R², AUC",
+                      placement = "right"),
+            
+            textInput("uncert", "Report model uncertainty"),
+            bsTooltip("uncert", title = "Standard errors, confidence or credible intervals",
+                      placement = "right"),
+            
+            textInput("valid", "Did you validate your model? If so, how?"),
+            bsTooltip("valid", title = "Validation involves testing your model against data that were not used to fit it.",
+            placement = "right")),
     tabItem(tabName = "step8",
             helpText("Provide enough data and code detail to allow full reproducibility
                 of your results.", style = "background-color:lightblue; border-radius:5px"),
@@ -218,11 +234,11 @@ ui <-dashboardPage(
                                    checkboxGroupInput('ip',"Intellectual property",
                                                       choices = c("My metadata and/or RDMP make it clear whose intellectual property this work represents", 'I have appointed a data steward','My project has a license that describes conditions of reuse')),
                                    checkboxGroupInput('metadata',"Metadata",
-                                                      choices = c("I have a README file", 'My README explains how all my files interact','My README contains the title, authors, date and License', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
+                                                      choices = c("I have a README file", 'My README explains how all my files interact','My README contains the title, authors, date and license', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
                                    checkboxGroupInput('code',"Code",
-                                                      choices = c("I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results, figures and tables,', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
+                                                      choices = c("I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results, figures and tables', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
                                    checkboxGroupInput('host',"Hosting",
-                                                      choices = c('My project files can be linked to a DOI (such as Zenodo in combination with GitHub')),
+                                                      choices = c('My project files can be linked to a DOI (such as Zenodo) in combination with GitHub')),
                                    checkboxGroupInput('naming',"Naming",
                                                       choices = c('I have named data files, variables, and scripts in an informative way')),
                       div(
@@ -271,9 +287,9 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
  })
 }
 
-fieldsAll <- c("step1","hyp","nohyp", "scale", "unit","pow1", "pow2", "prer1", "prer2", "foc","reso", "ntax","s_units","s_eff","dtyp","dtyp_info", "ntraits","cont", "disc", "bin", "fuzzy","samps","mean","intra","intra_info","dsource", "plot","coll","trans","miss", "det", "space", "space_info","space_info_other", "level",'group', "methods","methods_info", 'metric', "model", "effs", "valid", "dms",'ip','metadata','code','host','naming')
+fieldsAll <- c("step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "prer1", "prer2", "foc", "reso", "ntax", "unit2", "s_units","s_eff","dtyp","dtyp_info", "ntraits","cont", "disc", "bin", "fuzzy","samps","mean","intra","intra_info","dsource", "plot","coll","trans","miss", "det", "space", "space_info","space_info_other", "level",'group', "methods","methods_info", 'metric', "model", "effs", "supp", "uncert", "valid", "dms",'ip','metadata','code','host','naming')
 
-fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type if applicable", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used","Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Plots made?","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis",'Grouping/subsetting', "FD method", "Other FD method (if applicable)",'Method detail', "Model", "Effect sizes, model support and uncertainty", "Validation method", "Data management system",'Intellectual property','Metadata','Code','Hosting','Naming', "Date")
+fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type if applicable", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used","Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Plots made?","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis",'Grouping/subsetting', "FD method", "Other FD method (if applicable)",'Method detail', "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Data management system",'Intellectual property','Metadata','Code','Hosting','Naming', "Date")
 responsesDir <- file.path("../output")
 
 humanTime <- function() format(Sys.time(), "%Y%m%d")
