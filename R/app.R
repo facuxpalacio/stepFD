@@ -154,6 +154,10 @@ ui <-dashboardPage(
               bsTooltip("fuzzy", 
                         title = "Indicates to which extent a taxon exhibits each trait category. E.g., 0 = taxon has no affinity for a certain trait category, 1 = taxon has low affinity for a certain trait category, 2 = taxon has a high affinity for a certain trait category, but other categories can occur with equal (2) or lower (1) affinity, 3 = taxon has exclusive affinity for a certain trait category",
                         placement = "right"),
+
+             textInput("t_resol", "Report the trait resolution"),
+             bsTooltip("t_resol", title = "For those categorical traits that are not categorical in nature (e.g., body mass split into small vs large species), report the number of categories (binary traits) used to describe the trait",
+             placement = "right"),
               
              textInput("samps", "Report sample sizes per species and trait"),
              bsTooltip("samps", title = "If sample size varies across species and traits, provide the mean",
@@ -226,6 +230,7 @@ ui <-dashboardPage(
             textInput("valid", "Did you validate your model? If so, how?"),
             bsTooltip("valid", title = "Validation involves testing your model against data that were not used to fit it.",
             placement = "right")),
+    
     tabItem(tabName = "step8",
             helpText("Provide enough data and code detail to allow full reproducibility
                 of your results.", style = "background-color:lightblue; border-radius:5px"),
@@ -287,9 +292,9 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
  })
 }
 
-fieldsAll <- c("step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "prer1", "prer2", "foc", "reso", "ntax", "unit2", "s_units","s_eff","dtyp","dtyp_info", "ntraits","cont", "disc", "bin", "fuzzy","samps","mean","intra","intra_info","dsource", "plot","coll","trans","miss", "det", "space", "space_info","space_info_other", "level",'group', "methods","methods_info", 'metric', "model", "effs", "supp", "uncert", "valid", "dms",'ip','metadata','code','host','naming')
+fieldsAll <- c("step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "prer1", "prer2", "foc", "reso", "ntax", "unit2", "s_units", "s_eff", "dtyp", "dtyp_info", "ntraits", "cont", "disc", "bin", "fuzzy", "t_resol", "samps", "mean", "intra", "intra_info", "dsource", "plot","coll","trans","miss", "det", "space", "space_info","space_info_other", "level",'group', "methods","methods_info", 'metric', "model", "effs", "supp", "uncert", "valid", "dms", "ip", "metadata", "code", "host", "naming")
 
-fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type if applicable", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used","Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Plots made?","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis",'Grouping/subsetting', "FD method", "Other FD method (if applicable)",'Method detail', "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Data management system",'Intellectual property','Metadata','Code','Hosting','Naming', "Date")
+fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Preregistration", "Justification/location", "Focal taxa","Resolution", "Number of taxa","Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type if applicable", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Plots made?","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis","Grouping/subsetting", "FD method", "Other FD method (if applicable)","Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Data management system","Intellectual property","Metadata","Code","Hosting","Naming", "Date")
 responsesDir <- file.path("../output")
 
 humanTime <- function() format(Sys.time(), "%Y%m%d")
