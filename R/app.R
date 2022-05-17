@@ -51,7 +51,7 @@ ui <-dashboardPage(
               
               img(src = "sticker_app.png", height = 150),
               
-              box(title = "Template to be filled out offline", width = 8,
+              box(title = "Protocol to be filled out offline", width = 8,
               downloadButton("downloadTemplate", "Download")))
       ),
       
