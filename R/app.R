@@ -31,7 +31,7 @@ ui <-dashboardPage(
       # Tab contents
       tabItem(tabName = "dashboard",
               fluidRow(
-              box(Title = "", width = 8,
+              box(title = "", width = 8,
                   "This application is intended to provide students and researchers with a checklist to maximize methods' reproducibility, 
                   comparability, and transparency across trait-based studies. It allows the user to create a reproducibility document that 
                   reports all the steps of a trait-based analysis. This can be uploaded alongside a scientific publication to ensure 
@@ -49,7 +49,10 @@ ui <-dashboardPage(
                   "Please feel free to contact us with any suggestions!")
                   ),
               
-              img(src = "sticker_app.png", height = 150))
+              img(src = "sticker_app.png", height = 150),
+              
+              box(title = "Template to be filled out offline", width = 8,
+              downloadButton("downloadTemplate", "Download")))
       ),
       
       tabItem(tabName = "step1",
@@ -299,6 +302,15 @@ server <- function(input, output, session) {
 bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "hover",
           options = NULL)
   
+  # Downloadable csv template to fill out offline
+  fieldnames <- c("Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Focal taxa","Resolution", "Number of taxa", "Sampling unit", "Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type (if applicable)", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Other data sources (if applicable)", "Data exploration","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Other functional trait space method (if applicable)", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis", "FD method", "Other FD method (if applicable)", "Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Preregistration", "Justification/location", "Data management system", "Link to data", "Intellectual property","Metadata","Code", "Link to code", "Hosting","Naming", "Date")
+  output$downloadTemplate <- downloadHandler(
+    filename = "FDprotocol.csv",
+    content = function(file) {
+      write.csv(data.frame(Field = fieldnames), file, row.names = FALSE)
+    }
+  )
+  
  formData <- reactive({
    data <- sapply(fieldsAll, function(x) input[[x]])
    data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
@@ -309,12 +321,14 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   colnames(data)<-c("Field of checklist", "Response")
    data
  })
+ 
  saveData <- function(data) {
    fileName <- sprintf("FDprotocol_%s.csv",
                        humanTime())
    write.csv(x = data, file = file.path(responsesDir, fileName),
              row.names = FALSE)
  }
+ 
   # action to take when submit button is pressed
  observeEvent(input$submit, {
    shinyjs::show("thankyou_msg")
