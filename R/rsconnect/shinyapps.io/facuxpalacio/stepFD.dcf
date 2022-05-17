@@ -1,0 +1,13 @@
+name: stepFD
+title: stepFD
+username:
+account: facuxpalacio
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4954949
+bundleId: 5911552
+url: https://facuxpalacio.shinyapps.io/stepFD/
+when: 1652713045.01012
+lastSyncTime: 1652713045.01012
+asMultiple: FALSE
+asStatic: FALSE
