@@ -1,0 +1,13 @@
+---
+title: "Functional diversity protocol checklist"
+author: ""
+date: "`r Sys.Date()`"
+output: word_document
+params: 
+  n: NA
+---
+
+```{r echo = FALSE}
+opts <- options(knitr.kable.NA = "")
+knitr::kable(params$n)
+```
