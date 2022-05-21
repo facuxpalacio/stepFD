@@ -55,7 +55,8 @@ ui <-dashboardPage(
               
               box(title = "Protocol to be filled out offline", width = 5,
               downloadButton("download_csv", "Download csv file"),
-              downloadButton("download_doc", "Download doc file"))
+              downloadButton("download_doc", "Download doc file"),
+              downloadButton("download_rtf", "Download rtf file"))
               )
       ),
       
@@ -193,11 +194,11 @@ ui <-dashboardPage(
              checkboxGroupInput("dataexp", "Data exploration analysis", 
                                 choices=c("Data visualization", "Collinearity assessment", "Missing data assessment", "Spatiotemporal dependence assessment", "Species sampling coverage")),
              
-             textInput("coll", "Indicate which traits possess collinearity, if any"),
+             textInput("coll", "Traits possessing collinearity, if any"),
              bsTooltip("coll", title = "Collinearity: high correlation (>|0.7|) between traits",
                        placement = "right"),
              
-             textInput("trans","Indicate any data transformations performed"),
+             textInput("trans","Data transformations performed, if any"),
              bsTooltip("trans", title = "This may be required to conform to future model assumptions",
                        placement = "right"),
              
@@ -287,17 +288,18 @@ ui <-dashboardPage(
                                choices = c('My project files can be linked to a DOI (such as Zenodo) in combination with GitHub')),
             checkboxGroupInput('naming',"Naming",
                                choices = c('I have named data files, variables, and scripts in an informative way')),
-                      div(
-                        id = "form",
-                        actionButton("submit", "Save filled checklist", class = "btn-primary"),
-                        
+    
+                      div("Save filled checklist"),
+                      div(downloadButton("download_filled_csv", "Download csv file", class = "btn-primary")),
+                          div(downloadButton("download_filled_doc", "Download doc file", class = "btn-primary")),
+                            div(downloadButton("download_filled_rtf", "Download rtf file", class = "btn-primary")),
+                  
                         shinyjs::hidden(
                           div(
                             id = "thankyou_msg",
                             h3("Thanks for creating your protocol!")
                           )
                         )
-                )
               )
       )
     )
@@ -315,7 +317,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   output$download_csv <- downloadHandler(
     filename = "FDprotocol.csv",
     content = function(file) {
-      write.csv(data.frame(Field = fieldnames), file, row.names = FALSE)
+      write.csv(data.frame(Field = fieldnames, Response = ""), file, row.names = FALSE)
     }
   )
   
@@ -341,6 +343,78 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
       }
   )
   
+  output$download_rtf <- downloadHandler(
+    filename = "FDprotocol.rtf",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "FDprotocol.Rmd")
+      file.copy("FDprotocol.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(n = data.frame(Field = fieldnames, Response = NA))
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_format='rtf_document', output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+ output$download_filled_rtf <- downloadHandler(
+     filename = "FDprotocol_filled.rtf",
+     content = function(file) {
+       # Copy the report file to a temporary directory before processing it, in
+       # case we don't have write permissions to the current working dir (which
+       # can happen when deployed).
+       tempReport <- file.path(tempdir(), "FDprotocol.Rmd")
+       file.copy("FDprotocol.Rmd", tempReport, overwrite = TRUE)
+       
+       # Set up parameters to pass to Rmd document
+     #  params <- list(n = data.frame(Field = fieldnames, Response = NA))
+      params <- list(n = data.frame(formData()))
+       
+       # Knit the document, passing in the `params` list, and eval it in a
+       # child of the global environment (this isolates the code in the document
+       # from the code in this app).
+       rmarkdown::render(tempReport, output_format="rtf_document",output_file = file,
+                         params = params,
+                         envir = new.env(parent = globalenv())
+       )
+     }
+   )
+  
+  output$download_filled_csv <- downloadHandler(
+    filename = "FDprotocol_filled.csv",
+    content = function(file) {
+      write.csv(formData(), file, row.names = FALSE)
+    }
+  )
+  output$download_filled_doc <- downloadHandler(
+    filename = "FDprotocol_filled.doc", 
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "FDprotocol.Rmd")
+      file.copy("FDprotocol.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(n = data.frame(formData()))
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+  
  formData <- reactive({
    data <- sapply(fieldsAll, function(x) input[[x]])
    data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
@@ -348,22 +422,17 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   data<-gsub("c\\(", "", data)
   data<-gsub("\\)", "", data)
   data<-cbind(fieldnames,data)
-  colnames(data)<-c("Field of checklist", "Response")
+  colnames(data)<-c("Field ", "Response")
    data
  })
  
- saveData <- function(data) {
-   fileName <- sprintf("FDprotocol_%s.csv",
-                       humanTime())
-   write.csv(x = data, file = file.path(responsesDir, fileName),
-             row.names = FALSE)
- }
- 
-  # action to take when submit button is pressed
- observeEvent(input$submit, {
-   shinyjs::show("thankyou_msg")
-   saveData(formData())
- })
+  # action to take when checklist downloadded
+ observeEvent(input$download_filled_csv, {
+   shinyjs::show("thankyou_msg")})
+   observeEvent(input$download_filled_doc, {
+     shinyjs::show("thankyou_msg")})
+     observeEvent(input$download_filled_doc, {
+       shinyjs::show("thankyou_msg")})
 }
 
 fieldsAll <- c("title","authors", "study_link", "step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "foc", "reso", "ntax", "unit2", "s_units", "s_eff", "dtyp", "dtyp_info", "ntraits", "cont", "disc", "bin", "fuzzy", "t_resol", "samps", "mean", "intra", "intra_info", "dsource", "other_source", "dataexp", "coll", "trans","miss", "det", "space", "space_info", "diss", "diss_info", "level", "methods", "methods_info", "metric", "model", "effs", "supp", "uncert", "valid", "prer1", "prer2", "dms", "link_data", "ip", "metadata", "code", "code_link", "host", "naming")
