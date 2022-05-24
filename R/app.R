@@ -18,7 +18,7 @@ ui <-dashboardPage(
       menuItem("Step 2. Study design", tabName = "step2"),
       menuItem("Step 3. Community data", tabName = "step3"),
       menuItem("Step 4. Trait data", tabName = "step4"),
-      menuItem("Step 5. Explore your data!", tabName = "step5"),
+      menuItem("Step 5. Data exploration", tabName = "step5"),
       menuItem("Step 6. Functional diversity", tabName = "step6"),
       menuItem("Step 7. Modelling", tabName = "step7"),
       menuItem("Step 8. Reproducibility", tabName = "step8")
@@ -167,12 +167,10 @@ ui <-dashboardPage(
                         placement = "right"),
 
              textInput("t_resol", "Trait resolution"),
-             bsTooltip("t_resol", title = "For those categorical traits that are not categorical in nature (e.g., body mass split into small vs large species), report the number of categories (binary traits) used to describe the trait",
+             bsTooltip("t_resol", title = "Coarseness of traits, ranging from highest-resolution continuous measurements to lowest-resolution binary categories. For those categorical traits that are not categorical in nature (e.g., body mass split into small vs large species), report the number of categories (binary traits) used to describe the trait",
              placement = "right"),
               
-             textInput("samps", "Sample sizes per species and trait"),
-             bsTooltip("samps", title = "If sample size varies across species and traits, provide the mean",
-                       placement = "right"),
+             textInput("samps", "Mean sample sizes per species and trait"),
              
              textInput("mean", "Ecological significance of the selected traits"),
              bsTooltip("mean", title = "Hypothesized function of traits. E.g., tree height influences competitive ability, fruit and seed consumption relates to seed dispersal and seedling establishment",
@@ -195,7 +193,7 @@ ui <-dashboardPage(
                                 choices=c("Data visualization", "Collinearity assessment", "Missing data assessment", "Spatiotemporal dependence assessment", "Species sampling coverage")),
              
              textInput("coll", "Traits possessing collinearity, if any"),
-             bsTooltip("coll", title = "Collinearity: high correlation (>|0.7|) between traits",
+             bsTooltip("coll", title = "Collinearity: high correlation (e.g., >|0.7|) between traits",
                        placement = "right"),
              
              textInput("trans","Data transformations performed, if any"),
@@ -215,7 +213,7 @@ ui <-dashboardPage(
                       style = "background-color:lightblue; border-radius:5px"),
             
              checkboxGroupInput("level", "Level of analysis", 
-                                choices=c("Alpha diversity", "Beta diversity", "Gamma diversity")),
+                                choices=c("Sub-alpha diversity (observation/individual level)", "Alpha diversity (within group)", "Beta diversity (between group)", "Gamma diversity (entire trait pool)")),
              
              checkboxGroupInput("space", "Method used to build the functional trait space(s)",
                                 choices=c("Functional dendrogram", "Ordination methods (e.g., PCA, PCoA)", "Convex hull", "Probabilistic hypervolume", "Other")),
