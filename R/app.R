@@ -329,7 +329,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
       file.copy("FDprotocol.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(n = data.frame(Field = fieldnames, Response = NA))
+      params <- list(n = gsub('\\"','',data.frame(Field = fieldnames, Response = NA)))
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
@@ -388,7 +388,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   output$download_filled_csv <- downloadHandler(
     filename = "FDprotocol_filled.csv",
     content = function(file) {
-      write.csv(formData(), file, row.names = FALSE)
+      write.csv(formData2(), file, row.names = FALSE)
     }
   )
   output$download_filled_doc <- downloadHandler(
@@ -415,12 +415,22 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   
  formData <- reactive({
    data <- sapply(fieldsAll, function(x) input[[x]])
+   #data[grep("\\,", data)] <- dQuote(data[grep("\\,", data)],q=FALSE)
    data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
-  data<-gsub(",", "\\,", data)
-  data<-gsub("c\\(", "", data)
-  data<-gsub("\\)", "", data)
-  data<-cbind(fieldnames,data)
+   data<-cbind(fieldnames,data)
   colnames(data)<-c("Field ", "Response")
+   data
+ })
+ 
+ #Here is my addition, I created a second FormaData where we quote the fileds so excel reads them a string
+ #Quoting is performed only in fields where we have commas. 
+ #We could have had only one formData, but then quoting would have been seen in DOC or RTF. Therefore I decided to make a separate one.
+ formData2 <- reactive({
+   data <- sapply(fieldsAll, function(x) input[[x]])
+   data[grep("\\,", data)] <- dQuote(data[grep("\\,", data)],q=FALSE)
+   data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
+   data<-cbind(fieldnames,data)
+   colnames(data)<-c("Field ", "Response")
    data
  })
  
@@ -433,6 +443,8 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
        shinyjs::show("thankyou_msg")})
 }
 
+
+
 fieldsAll <- c("title","authors", "study_link", "step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "foc", "reso", "ntax", "unit2", "s_units", "s_eff", "dtyp", "dtyp_info", "ntraits", "cont", "disc", "bin", "fuzzy", "t_resol", "samps", "mean", "intra", "intra_info", "dsource", "other_source", "dataexp", "coll", "trans","miss", "det", "space", "space_info", "diss", "diss_info", "level", "methods", "methods_info", "metric", "model", "effs", "supp", "uncert", "valid", "prer1", "prer2", "dms", "link_data", "ip", "metadata", "code", "code_link", "host", "naming")
 
 fieldnames <- c("Study title", "Authors", "Link to preprint/DOI (if available)", "Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Focal taxa","Resolution", "Number of taxa", "Sampling unit", "Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type (if applicable)", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Other data sources (if applicable)", "Data exploration","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Other functional trait space method (if applicable)", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis", "FD method", "Other FD method (if applicable)", "Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Preregistration", "Justification/location", "Data management system", "Link to data", "Intellectual property","Metadata","Code", "Link to code", "Hosting","Naming", "Date")
@@ -442,5 +454,3 @@ humanTime <- function() format(Sys.time(), "%Y%m%d")
 
 
 shinyApp(ui = ui, server = server) 
-
-
