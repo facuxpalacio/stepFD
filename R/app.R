@@ -259,33 +259,27 @@ ui <-dashboardPage(
     tabItem(tabName = "step8",
             helpText("Provide enough data and code detail to allow full reproducibility
                 of your results.", style = "background-color:lightblue; border-radius:5px"),
+      
             
-            radioButtons("prer1", "Did you preregister?", choices=c("No", "Yes")),   
-            bsTooltip("prer1", title = "Posting a plan for analysis before performing it, both for transparency and to demonstrate hypotheses were made before the results were known",
-                      placement = "right"),
-            
-            textInput("prer2", "Link to preregistration (if any)", value = "", 
+            textInput("prer", "Link to preregistration (if any)", value = "", 
                       placeholder = "My preregistration is hosted at osf.io/..."),
-            bsTooltip("prer2", title = "e.g. on OSF, bioRxiv or EcoEvoRxiv",
+            bsTooltip("prer", title = "Posting a plan for analysis before performing it, both for transparency and to demonstrate hypotheses were made before the results were known e.g. on OSF, bioRxiv or EcoEvoRxiv",
                       placement = "right"),
             
-            checkboxGroupInput('dms',"Data management and storage",
-                               choices = c('I have a Research Data Management Plan', 'My data and code are stored in a location with version control','I have backup copies of my data and code','My data and code are in an organized file system','My raw data are unaltered')),
-            
-            textInput("link_data", "Link to repository of data", value = ""),
-            
-            checkboxGroupInput('ip',"Intellectual property",
-                               choices = c("My metadata and/or RDMP make it clear whose intellectual property this work represents", 'I have appointed a data steward','My project has a license that describes conditions of reuse')),
-            checkboxGroupInput('metadata',"Metadata",
-                               choices = c("I have a README file", 'My README explains how all my files interact','My README contains the title, authors, date and license', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
-            checkboxGroupInput('code',"Code",
-                               choices = c("I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results, figures and tables', 'If applicable, my README contains download dates for external data and any filters used', 'I will update my README continuously as my project progresses')),
+            selectizeInput('dms','I have a Research Data Management Plan',choices=c("yes", "no")),
+            bsTooltip("dms", title = "Research data management plans ensure the long-terms stability of data and code produced as part of a project, appoint data stewards, and provide intellectual property details.",
+                      placement = "right"),       
             textInput("link_code", "Link to repository of code", value = ""),
-            
-            checkboxGroupInput('host',"Hosting",
-                               choices = c('My project files can be linked to a DOI (such as Zenodo) in combination with GitHub')),
-            checkboxGroupInput('naming',"Naming",
-                               choices = c('I have named data files, variables, and scripts in an informative way')),
+            textInput("link_comm_data", "Link to repository of Community data (if it's the same the as code repository, just repeat)", value = ""),
+            textInput("link_trait_data", "Link to repository of Trait data (if it's the same the as code repository, just repeat)", value = ""),
+            textInput("link_env_data", "Link to repository of Environmental data (if it's the same the as code repository, just repeat)", value = ""),
+            checkboxGroupInput('data_code_desc',"Data and code description",
+                               choices = c('My project has a license that describes conditions of reuse',"I have a README file","I've included software and package version numbers", 'My code has informative comments','The code I provided can reproduce all results, figures and tables', 'If applicable, my README contains download dates for external data and any filters used', 'I have backup copies of my data and code','I have named data files, variables, and scripts in an informative way')),
+            bsTooltip("data_code_desc", title = "These components ensure a minimum level of reproducibility using stored data and code",
+                      placement = "right"),
+            textInput('repro_notes', "Other notes on reproducibility"),
+            bsTooltip("repro_notes", title = "e.g. have you appointed a data steward to ensure long-term stability? Does the code use a package management system like renv? Will the project be linked to a DOI with Zenodo or similar?",
+                      placement = "right"),
     
                       div("Save filled checklist"),
                       div(downloadButton("download_filled_csv", "Download csv file", class = "btn-primary")),
@@ -311,7 +305,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
           options = NULL)
   
   # Downloadable csv or docx template to fill out offline
-  fieldnames <- c("Study title", "Authors", "Link to preprint/DOI (if available)", "Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Focal taxa","Resolution", "Number of taxa", "Sampling unit", "Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type (if applicable)", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Other data sources (if applicable)", "Data exploration","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Other functional trait space method (if applicable)", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis", "FD method", "Other FD method (if applicable)", "Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Preregistration", "Justification/location", "Data management system", "Link to data", "Intellectual property","Metadata","Code", "Link to code", "Hosting","Naming", "Date")
+  fieldnames <- c("Study title", "Authors", "Link to preprint/DOI (if available)", "Focus","Hypothesis","Open-ended patterns examined (if applicable)", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Focal taxa","Resolution", "Number of taxa", "Sampling unit", "Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type (if applicable)", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Other data sources (if applicable)", "Data exploration","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Other functional trait space method (if applicable)", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis", "FD method", "Other FD method (if applicable)", "Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method","Preregistration", "Code link","Community data link","Trait data link","Environmental data link","Data and Code description",'Reproducibility Notes', "Date")
   output$download_csv <- downloadHandler(
     filename = "FDprotocol.csv",
     content = function(file) {
@@ -415,19 +409,30 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
   
  formData <- reactive({
    data <- sapply(fieldsAll, function(x) input[[x]])
-   #data[grep("\\,", data)] <- dQuote(data[grep("\\,", data)],q=FALSE)
-   data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
+   long<-which(sapply(data, length)>1)
+   data[long]<-gsub("c\\(", "", data[long])
+   for (i in long)
+   {
+     data[i][length(data[i])]<-gsub("\\)$", "", data[i][length(data[i])])
+   }
+   data <- c(data, date = humanTime())
    data<-cbind(fieldnames,data)
   colnames(data)<-c("Field ", "Response")
    data
  })
  
- #Here is my addition, I created a second FormaData where we quote the fileds so excel reads them a string
+ #Here is my addition, I created a second FormaData where we quote the fields so excel reads them a string
  #Quoting is performed only in fields where we have commas. 
  #We could have had only one formData, but then quoting would have been seen in DOC or RTF. Therefore I decided to make a separate one.
  formData2 <- reactive({
    data <- sapply(fieldsAll, function(x) input[[x]])
-   data[grep("\\,", data)] <- dQuote(data[grep("\\,", data)],q=FALSE)
+   long<-which(sapply(data, length)>1)
+   data[long]<-gsub("c\\(", "", data[long])
+  for (i in long)
+  {
+    data[i][length(data[i])]<-gsub("\\)$", "", data[i][length(data[i])])
+  }
+   data <- dQuote(data,q=FALSE)
    data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
    data<-cbind(fieldnames,data)
    colnames(data)<-c("Field ", "Response")
@@ -445,9 +450,8 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
 
 
 
-fieldsAll <- c("title","authors", "study_link", "step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "foc", "reso", "ntax", "unit2", "s_units", "s_eff", "dtyp", "dtyp_info", "ntraits", "cont", "disc", "bin", "fuzzy", "t_resol", "samps", "mean", "intra", "intra_info", "dsource", "other_source", "dataexp", "coll", "trans","miss", "det", "space", "space_info", "diss", "diss_info", "level", "methods", "methods_info", "metric", "model", "effs", "supp", "uncert", "valid", "prer1", "prer2", "dms", "link_data", "ip", "metadata", "code", "code_link", "host", "naming")
+fieldsAll <- c("title","authors", "study_link", "step1","hyp","nohyp", "scale", "unit1","pow1", "pow2", "foc", "reso", "ntax", "unit2", "s_units", "s_eff", "dtyp", "dtyp_info", "ntraits", "cont", "disc", "bin", "fuzzy", "t_resol", "samps", "mean", "intra", "intra_info", "dsource", "other_source", "dataexp", "coll", "trans","miss", "det", "space", "space_info", "diss", "diss_info", "level", "methods", "methods_info", "metric", "model", "effs", "supp", "uncert", "valid", "prer","link_code","link_comm_data","link_trait_data","link_env_data","data_code_desc",'repro_notes')
 
-fieldnames <- c("Study title", "Authors", "Link to preprint/DOI (if available)", "Focus","Hypothesis","Patterns examined", "Scale", "Ecological unit","Power analysis", "Power analysis results/rationale", "Focal taxa","Resolution", "Number of taxa", "Sampling unit", "Number of sampling units","Sampling effort","Occurrence data type","Other occurrence data type (if applicable)", "Number of traits","Continuous traits used","Discrete traits used", "Binary traits used", "Fuzzy-coded traits used", "Trait resolution", "Sample site per species and trait", "Hypothesized function of each trait","Intraspecific variation accounted for?", "How was intraspecific variation accounted for (if applicable)?","Data source", "Other data sources (if applicable)", "Data exploration","Collinearity assessed?","Transformations done?","Missing data accounted for?", "Imperfect detection control","Functional trait space method", "Other functional trait space method (if applicable)", "Dissimilarity metric used for trait space (if applicable)","Other dissimilarity metric (if applicable)", "Level of analysis", "FD method", "Other FD method (if applicable)", "Method detail", "Model", "Effect sizes", "Model support", "Model uncertainty", "Validation method", "Preregistration", "Justification/location", "Data management system", "Link to data", "Intellectual property","Metadata","Code", "Link to code", "Hosting","Naming", "Date")
 responsesDir <- file.path("../output")
 
 humanTime <- function() format(Sys.time(), "%Y%m%d")
