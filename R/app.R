@@ -367,7 +367,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
        
        # Set up parameters to pass to Rmd document
      #  params <- list(n = data.frame(Field = fieldnames, Response = NA))
-      params <- list(n = data.frame(formData()))
+      params <- list(n = data.frame(formData(), row.names = NULL))
        
        # Knit the document, passing in the `params` list, and eval it in a
        # child of the global environment (this isolates the code in the document
@@ -395,7 +395,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
       file.copy("FDprotocol.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(n = data.frame(formData()))
+      params <- list(n = data.frame(formData(), row.names=NULL))
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
@@ -417,7 +417,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
    }
    data <- c(data, date = humanTime())
    data<-cbind(fieldnames,data)
-  colnames(data)<-c("Field ", "Response")
+  colnames(data)<-c("Field", "Response")
    data
  })
  
@@ -435,7 +435,7 @@ bsTooltip("scale", "The scale of analysis...", placement = "bottom", trigger = "
    data <- dQuote(data,q=FALSE)
    data <- c(data, date = humanTime())#add escape characters to commas to avoid breaking up into more than 1 cell
    data<-cbind(fieldnames,data)
-   colnames(data)<-c("Field ", "Response")
+   colnames(data)<-c("Field", "Response")
    data
  })
  
